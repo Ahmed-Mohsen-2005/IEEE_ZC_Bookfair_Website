@@ -42,17 +42,21 @@ export async function POST(request: Request) {
       })
     }
 
-    // Save file to public/uploads/
+    // Save file to public/uploads/ (Local only)
     let fileUrl = ''
     if (file && file.size > 0) {
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-      await mkdir(uploadsDir, { recursive: true })
-
-      const ext = file.name.split('.').pop() || 'pdf'
-      const safeName = `${Date.now()}-${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${ext}`
-      const bytes = await file.arrayBuffer()
-      await writeFile(path.join(uploadsDir, safeName), Buffer.from(bytes))
-      fileUrl = `/uploads/${safeName}`
+      if (process.env.VERCEL) {
+        // Vercel Serverless is a read-only target (EROFS). We skip physical saving for the demo.
+        fileUrl = '#'
+      } else {
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+        await mkdir(uploadsDir, { recursive: true })
+        const ext = file.name.split('.').pop() || 'pdf'
+        const safeName = `${Date.now()}-${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${ext}`
+        const bytes = await file.arrayBuffer()
+        await writeFile(path.join(uploadsDir, safeName), Buffer.from(bytes))
+        fileUrl = `/uploads/${safeName}`
+      }
     }
 
     // Persist to DB
