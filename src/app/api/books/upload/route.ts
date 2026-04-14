@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     // Save file to public/uploads/ (Local only)
     let fileUrl = ''
     if (file && file.size > 0) {
-      if (process.env.VERCEL) {
+      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
         // Vercel Serverless is a read-only target (EROFS). We skip physical saving for the demo.
         fileUrl = '#'
       } else {
