@@ -132,7 +132,7 @@ export default function ZewailAboutSection() {
         >{t.subtitle}</motion.p>
 
         {/* ── Main two-column layout ── */}
-        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20 ${isAr ? 'lg:flex lg:flex-row-reverse' : ''}`}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20" dir={isAr ? 'rtl' : 'ltr'}>
 
           {/* Image Gallery */}
           <motion.div initial={{ opacity: 0, x: isAr ? 40 : -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
