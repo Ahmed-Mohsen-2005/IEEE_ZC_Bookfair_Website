@@ -3,50 +3,66 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.log('Seeding database with default accounts...')
 
-  // Create demo users
-  await prisma.user.upsert({
-    where: { email: 'visitor@zewailcity.edu.eg' },
+  // 1. Create a Publisher target first
+  const publisher = await prisma.publisher.upsert({
+    where: { slug: 'zewail-press' },
     update: {},
     create: {
-      name: 'Ahmed Ali',
-      email: 'visitor@zewailcity.edu.eg',
-      password: 'password123',
-      role: 'visitor',
+      name: 'Zewail University Press',
+      slug: 'zewail-press',
+      tagline: 'Publishing academic excellence',
+      description: 'The official academic press of Zewail City.',
+      accentColor: '#00B4D1',
     },
   })
 
+  // 2. Create Admin Account
   await prisma.user.upsert({
-    where: { email: 'publisher@zewailcity.edu.eg' },
-    update: {},
+    where: { email: 'admin@zewail.edu.eg' },
+    update: { password: 'AdminPassword2026!' },
     create: {
-      name: 'Publisher Admin',
-      email: 'publisher@zewailcity.edu.eg',
-      password: 'publisher123',
-      role: 'publisher',
-      publisherId: 'general-egyptian',
-    },
-  })
-
-  await prisma.user.upsert({
-    where: { email: 'admin@zewailcity.edu.eg' },
-    update: {},
-    create: {
-      name: 'System Admin',
-      email: 'admin@zewailcity.edu.eg',
-      password: 'admin123',
+      name: 'Super Admin',
+      email: 'admin@zewail.edu.eg',
+      password: 'AdminPassword2026!',
       role: 'admin',
     },
   })
 
-  console.log('✅ Database seeded successfully!')
-  console.log('📧 Demo accounts:')
-  console.log('   visitor@zewailcity.edu.eg / password123')
-  console.log('   publisher@zewailcity.edu.eg / publisher123')
-  console.log('   admin@zewailcity.edu.eg / admin123')
+  // 3. Create Publisher Account
+  await prisma.user.upsert({
+    where: { email: 'publisher@zewail.edu.eg' },
+    update: { password: 'PublisherPassword2026!' },
+    create: {
+      name: 'Zewail Press Manager',
+      email: 'publisher@zewail.edu.eg',
+      password: 'PublisherPassword2026!',
+      role: 'publisher',
+      publisherId: publisher.id,
+    },
+  })
+
+  // 4. Create Visitor Account
+  await prisma.user.upsert({
+    where: { email: 'visitor@gmail.com' },
+    update: { password: 'VisitorPassword2026!' },
+    create: {
+      name: 'Ahmed Reader',
+      email: 'visitor@gmail.com',
+      password: 'VisitorPassword2026!',
+      role: 'visitor',
+    },
+  })
+
+  console.log('Database seeded successfully!')
 }
 
 main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
