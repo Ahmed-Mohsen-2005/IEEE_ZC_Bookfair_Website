@@ -42,8 +42,8 @@ export default function AuthModal() {
     createAccount:   isAr ? 'إنشاء الحساب'     : 'Create Account',
     creatingAccount: isAr ? 'جارٍ الإنشاء...'  : 'Creating account...',
     demoHint:        isAr
-      ? '💡 للتجربة: visitor@zewailcity.edu.eg / password123'
-      : '💡 Demo: visitor@zewailcity.edu.eg / password123',
+      ? '💡 للتجربة: visitor@gmail.com / VisitorPassword2026!'
+      : '💡 Demo: visitor@gmail.com / VisitorPassword2026!',
     namePlaceholder: isAr ? 'أحمد علي' : 'Ahmed Ali',
     pwdMinHint:      isAr ? '٦ أحرف على الأقل' : 'At least 6 characters',
   }
