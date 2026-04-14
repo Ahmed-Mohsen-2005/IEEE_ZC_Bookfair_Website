@@ -51,8 +51,6 @@ export default function AuthModal() {
   // ── Login state ──────────────────────────────────────
   const [loginEmail,      setLoginEmail]      = useState('')
   const [loginPassword,   setLoginPassword]   = useState('')
-  const [isPublisherLogin,setIsPublisherLogin]= useState(false)
-  const [selectedPub,     setSelectedPub]     = useState('')
   const [loginLoading,    setLoginLoading]    = useState(false)
   const [showLoginPwd,    setShowLoginPwd]    = useState(false)
 
@@ -65,7 +63,7 @@ export default function AuthModal() {
   const [showRegPwd,  setShowRegPwd]  = useState(false)
 
   const reset = useCallback(() => {
-    setLoginEmail(''); setLoginPassword(''); setIsPublisherLogin(false); setSelectedPub('')
+    setLoginEmail(''); setLoginPassword('')
     setLoginLoading(false); setShowLoginPwd(false)
     setRegName(''); setRegEmail(''); setRegPassword(''); setRegConfirm('')
     setRegLoading(false); setShowRegPwd(false)
@@ -78,7 +76,6 @@ export default function AuthModal() {
     if (!loginEmail.trim())    return isAr ? 'البريد الإلكتروني مطلوب' : 'Email is required'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail)) return isAr ? 'بريد إلكتروني غير صحيح' : 'Enter a valid email'
     if (!loginPassword.trim()) return isAr ? 'كلمة المرور مطلوبة'      : 'Password is required'
-    if (isPublisherLogin && !selectedPub) return isAr ? 'اختر الناشر' : 'Please select a publisher'
     return null
   }
   const validateRegister = () => {
@@ -95,10 +92,8 @@ export default function AuthModal() {
     const err = validateLogin(); if (err) { toast.error(err); return }
     setLoginLoading(true)
     try {
-      const endpoint = isPublisherLogin ? '/api/auth/publisher-login' : '/api/auth/login'
-      const body = isPublisherLogin
-        ? { email: loginEmail, password: loginPassword, publisherId: selectedPub }
-        : { email: loginEmail, password: loginPassword }
+      const endpoint = '/api/auth/login'
+      const body = { email: loginEmail, password: loginPassword }
       const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       let data: { user?: { name: string }; error?: string }
       try { data = await res.json() } catch { throw new Error(isAr ? 'خطأ في الاتصال بالخادم' : 'Server connection error. Please try again.') }
@@ -191,28 +186,7 @@ export default function AuthModal() {
               </div>
             </div>
 
-            {/* Publisher toggle */}
-            <div className={`flex items-center gap-3 rounded-lg border border-zewail-blue/20 bg-zewail-blue/6 dark:bg-zewail-blue/10 p-3 ${isAr ? 'flex-row-reverse justify-start' : 'justify-start'}`}>
-              <Switch id="pub-toggle" checked={isPublisherLogin} onCheckedChange={setIsPublisherLogin}
-                className="data-[state=checked]:bg-zewail-blue" />
-              <Label htmlFor="pub-toggle" className={`cursor-pointer text-sm text-foreground ${isAr ? 'w-full text-right' : ''}`}>{t.publisherLogin}</Label>
-            </div>
 
-            {isPublisherLogin && (
-              <div className="space-y-1.5">
-                <Label className={`text-foreground ${isAr ? 'block w-full text-right' : ''}`}>{t.publisherLabel}</Label>
-                <Select value={selectedPub} onValueChange={setSelectedPub} dir={isAr ? 'rtl' : 'ltr'}>
-                  <SelectTrigger className="bg-background border-border text-foreground w-full">
-                    <SelectValue placeholder={t.selectPublisher} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border">
-                    {PUBLISHER_LIST.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{isAr ? p.nameAr : p.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
 
             <Button onClick={handleLogin} disabled={loginLoading}
               className="w-full bg-zewail-navy dark:bg-zewail-blue text-white hover:bg-zewail-navy/90 dark:hover:bg-zewail-blue-dark">

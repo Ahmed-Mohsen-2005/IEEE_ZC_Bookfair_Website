@@ -32,8 +32,8 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
     const book = await db.book.findUnique({ where: { id: params.id } })
     if (!book) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    // Remove physical file if exists
-    if (book.fileUrl) {
+    // Remove physical file if exists (Local only)
+    if (book.fileUrl && !process.env.VERCEL && process.env.NODE_ENV !== 'production') {
       try {
         await unlink(path.join(process.cwd(), 'public', book.fileUrl))
       } catch { /* file may already be gone */ }
