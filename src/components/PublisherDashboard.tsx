@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useAppStore } from '@/lib/store'
-import { BOOKS, PUBLISHERS, getBookCoverGradient, GENRES } from '@/lib/data'
+import { PUBLISHERS, getBookCoverGradient, GENRES } from '@/lib/data'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Upload, BarChart3, BookOpen, Eye, Edit, Trash2,
@@ -26,6 +26,10 @@ interface UploadForm {
 }
 const EMPTY_FORM: UploadForm = { title: '', author: '', genre: '', language: 'Arabic', year: new Date().getFullYear().toString(), description: '', file: null }
 
+export interface PublishedBook {
+  id: string; title: string; author: string; genre: string; year: number; readCount: number; publisherId: string
+}
+
 export default function PublisherDashboard() {
   const { user, navigateTo, language } = useAppStore()
   const isAr = language === 'ar'
@@ -43,14 +47,23 @@ export default function PublisherDashboard() {
   // Delete state
   const [delBookId, setDelBookId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-  // Uploaded books state (refreshed after upload)
-  const [uploadedBooks, setUploadedBooks] = useState<{ id: string; title: string; author: string; genre: string; year: number; readCount: number }[]>([])
-  const [showUploaded, setShowUploaded] = useState(false)
+  // Uploaded books state
+  const [books, setBooks] = useState<PublishedBook[]>([])
+  const [loadingBooks, setLoadingBooks] = useState(true)
 
   const publisherId = user?.publisherId || 'general-egyptian'
   const publisher = PUBLISHERS.find(p => p.id === publisherId)
-  const publisherBooks = BOOKS.filter(b => b.publisherId === publisherId)
-  const totalReads = publisherBooks.reduce((sum, b) => sum + b.readCount, 0)
+  
+  useEffect(() => {
+    fetch('/api/books')
+      .then(r => r.json())
+      .then(d => {
+        if (d.books) setBooks(d.books.filter((b: PublishedBook) => b.publisherId === publisherId))
+      })
+      .finally(() => setLoadingBooks(false))
+  }, [publisherId])
+
+  const totalReads = books.reduce((sum, b) => sum + b.readCount, 0)
 
   const t = {
     home: isAr ? 'الرئيسية' : 'Back to Home',
@@ -132,8 +145,7 @@ export default function PublisherDashboard() {
       if (!res.ok) throw new Error(data.error)
 
       // Track uploaded book in local state
-      setUploadedBooks(prev => [...prev, { id: data.book.id, title: form.title, author: form.author, genre: form.genre, year: parseInt(form.year), readCount: 0 }])
-      setShowUploaded(true)
+      setBooks(prev => [{ id: data.book.id, title: form.title, author: form.author, genre: form.genre, year: parseInt(form.year), readCount: 0, publisherId }, ...prev])
       toast.success(isAr ? `تم نشر "${form.title}" بنجاح! 🎉` : `"${form.title}" published successfully! 🎉`)
       setForm(EMPTY_FORM)
       setUploadOpen(false)
@@ -153,7 +165,7 @@ export default function PublisherDashboard() {
         body: JSON.stringify({ title: editForm.title, author: editForm.author, genre: editForm.genre, year: editForm.year }),
       })
       if (!res.ok) throw new Error()
-      setUploadedBooks(prev => prev.map(b => b.id === editBookId ? { ...b, ...editForm, year: parseInt(editForm.year) } : b))
+      setBooks(prev => prev.map(b => b.id === editBookId ? { ...b, ...editForm, year: parseInt(editForm.year) } : b))
       toast.success(isAr ? 'تم تحديث الكتاب' : 'Book updated')
       setEditBookId(null)
     } catch { toast.error(isAr ? 'فشل التحديث' : 'Update failed') }
@@ -166,7 +178,7 @@ export default function PublisherDashboard() {
     try {
       const res = await fetch(`/api/books/${delBookId}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
-      setUploadedBooks(prev => prev.filter(b => b.id !== delBookId))
+      setBooks(prev => prev.filter(b => b.id !== delBookId))
       toast.success(isAr ? 'تم حذف الكتاب' : 'Book deleted')
       setDelBookId(null)
     } catch { toast.error(isAr ? 'فشل الحذف' : 'Delete failed') }
@@ -202,7 +214,7 @@ export default function PublisherDashboard() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: t.metrics.titles, value: publisherBooks.length.toString(), color: 'text-zewail-blue', icon: <BookOpen className="h-5 w-5 text-zewail-blue" />, bg: 'bg-zewail-blue/10', growth: t.growthMonth },
+            { label: t.metrics.titles, value: books.length.toString(), color: 'text-zewail-blue', icon: <BookOpen className="h-5 w-5 text-zewail-blue" />, bg: 'bg-zewail-blue/10', growth: t.growthMonth },
             { label: t.metrics.reads, value: totalReads.toLocaleString(), color: 'text-emerald-500', icon: <Eye className="h-5 w-5 text-emerald-500" />, bg: 'bg-emerald-500/10', growth: t.growthWeek },
             { label: t.metrics.readers, value: '1,847', color: 'text-amber-500', icon: <Users className="h-5 w-5 text-amber-500" />, bg: 'bg-amber-500/10', growth: t.growthReaders },
             { label: t.metrics.engagement, value: '73%', color: 'text-purple-500', icon: <BarChart3 className="h-5 w-5 text-purple-500" />, bg: 'bg-purple-500/10', growth: t.growthEng },
@@ -238,7 +250,7 @@ export default function PublisherDashboard() {
           <div className="p-6 border-b border-border flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground">{t.catalog}</h2>
             <Badge className="bg-zewail-blue/10 text-zewail-blue border-none">
-              {publisherBooks.length} {isAr ? 'عنوان' : 'titles'}
+              {books.length} {isAr ? 'عنوان' : 'titles'}
             </Badge>
           </div>
           <div className="overflow-x-auto">
@@ -251,7 +263,11 @@ export default function PublisherDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {publisherBooks.map(book => (
+                {loadingBooks ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">{isAr ? 'جاري تحميل الكتب...' : 'Loading books...'}</TableCell></TableRow>
+                ) : books.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">{isAr ? 'لا توجد كتب تم رفعها بعد.' : 'No books uploaded yet.'}</TableCell></TableRow>
+                ) : books.map(book => (
                   <TableRow key={book.id} className="border-border hover:bg-muted/30 transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -275,32 +291,7 @@ export default function PublisherDashboard() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {showUploaded && uploadedBooks.map(book => (
-                  <TableRow key={book.id} className="border-border hover:bg-muted/30 bg-emerald-500/5">
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-10 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 shrink-0 shadow-sm" />
-                        <div>
-                          <span className="font-medium text-foreground text-sm line-clamp-1">{book.title}</span>
-                          <Badge className="ms-2 bg-emerald-500/10 text-emerald-600 border-none text-[10px]">{isAr ? 'جديد' : 'New'}</Badge>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{book.author}</TableCell>
-                    <TableCell><Badge variant="secondary" className="bg-muted text-muted-foreground border-0 text-xs">{book.genre}</Badge></TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{book.year}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm font-medium">0</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-zewail-blue hover:bg-zewail-blue/10"
-                          onClick={() => { setEditBookId(book.id); setEditForm({ title: book.title, author: book.author, genre: book.genre, year: String(book.year) }) }}>
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10" onClick={() => setDelBookId(book.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+
               </TableBody>
             </Table>
           </div>
@@ -412,7 +403,7 @@ export default function PublisherDashboard() {
               </DialogTitle>
             </DialogHeader>
             {selectedBook && (() => {
-              const book = BOOKS.find(b => b.id === selectedBook)
+              const book = books.find(b => b.id === selectedBook)
               if (!book) return null
               return (
                 <div className="space-y-4 mt-2">
