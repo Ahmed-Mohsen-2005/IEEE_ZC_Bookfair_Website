@@ -44,6 +44,7 @@ model Book {
   year        Int
   coverUrl    String?
   pdfUrl      String?
+  fileUrl     String?
   publisherId String
   publisher   Publisher @relation(fields: [publisherId], references: [id])
   readCount   Int      @default(0)

@@ -1,24 +1,49 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { unlink } from 'fs/promises'
+import path from 'path'
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// PATCH /api/books/[id] — update a book
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params
-    const book = await db.book.findUnique({
-      where: { id },
+    const body = await req.json()
+    const { title, author, genre, language, year, description } = body
+    const book = await db.book.update({
+      where: { id: params.id },
+      data: {
+        ...(title       && { title }),
+        ...(author      && { author }),
+        ...(genre       && { genre }),
+        ...(language    && { language }),
+        ...(year        && { year: Number(year) }),
+        ...(description !== undefined && { description }),
+      },
       include: { publisher: true },
     })
+    return NextResponse.json({ book })
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 500 })
+  }
+}
 
-    if (!book) {
-      return NextResponse.json({ error: 'Book not found' }, { status: 404 })
+// DELETE /api/books/[id] — delete a book and its file
+export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  try {
+    const book = await db.book.findUnique({ where: { id: params.id } })
+    if (!book) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    // Remove physical file if exists
+    if (book.fileUrl) {
+      try {
+        await unlink(path.join(process.cwd(), 'public', book.fileUrl))
+      } catch { /* file may already be gone */ }
     }
 
-    return NextResponse.json({ book })
-  } catch (error) {
-    console.error('Book fetch error:', error)
-    return NextResponse.json({ error: 'Failed to fetch book' }, { status: 500 })
+    await db.userBook.deleteMany({ where: { bookId: params.id } })
+    await db.book.delete({ where: { id: params.id } })
+
+    return NextResponse.json({ success: true })
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 500 })
   }
 }

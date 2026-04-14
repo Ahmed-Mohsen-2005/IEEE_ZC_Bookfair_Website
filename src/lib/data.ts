@@ -1,9 +1,12 @@
 export interface Publisher {
   id: string
   name: string
+  nameAr: string
   slug: string
   tagline: string
+  taglineAr: string
   description: string
+  descriptionAr: string
   accentColor: string
   logoUrl: string
   bookCount: number
@@ -26,10 +29,13 @@ export interface Book {
 export interface FairEvent {
   id: string
   title: string
+  titleAr: string
   description: string
+  descriptionAr: string
   speaker: string
   date: string
   duration: string
+  durationAr: string
   type: 'workshop' | 'panel' | 'talk'
   publisherName?: string
 }
@@ -38,44 +44,57 @@ export const PUBLISHERS: Publisher[] = [
   {
     id: 'general-egyptian',
     name: 'General Egyptian Book Organization',
+    nameAr: 'الهيئة المصرية العامة للكتاب',
     slug: 'general-egyptian',
     tagline: 'State Custodian of Letters',
+    taglineAr: 'الحارس الوطني للأدب',
     description: 'The foremost national institution dedicated to the preservation, production, and dissemination of Egyptian literary and intellectual heritage. A pillar of state-sponsored cultural enrichment.',
+    descriptionAr: 'المؤسسة الوطنية الرائدة المكرسة للحفاظ على التراث الأدبي والفكري المصري وإنتاجه ونشره. ركيزة أساسية للإثراء الثقافي الذي ترعاه الدولة.',
     accentColor: '#C41E3A',
-    logoUrl: '/publishers/general-egyptian.svg',
+    logoUrl: '/publishers/general-egyptian.png',
     bookCount: 1247,
   },
   {
     id: 'dar-al-maaref',
     name: 'Dar Al-Maaref',
+    nameAr: 'دار المعارف',
     slug: 'dar-al-maaref',
     tagline: 'A Lighthouse of Knowledge Since 1890',
+    taglineAr: 'منارة المعرفة منذ عام 1890',
     description: 'Established in 1890, Dar Al-Maaref stands as one of Egypt\'s oldest and most revered publishing houses, illuminating the path of academic and literary excellence for over a century.',
+    descriptionAr: 'تأسست عام 1890، وتُعدّ دار المعارف من أعرق دور النشر المصرية وأكثرها احتراماً، تُضيء درب التميز الأكاديمي والأدبي منذ أكثر من قرن كامل.',
     accentColor: '#2E7D32',
-    logoUrl: '/publishers/dar-al-maaref.svg',
+    logoUrl: '/publishers/dar-al-maaref.png',
     bookCount: 892,
   },
   {
     id: 'national-library',
     name: 'National Library and Archives of Egypt',
+    nameAr: 'دار الكتب والوثائق القومية',
     slug: 'national-library',
     tagline: 'Gatekeepers of National Memory',
+    taglineAr: 'حُرّاس الذاكرة الوطنية',
     description: 'The guardian of Egypt\'s documentary heritage, preserving rare manuscripts, historical facsimiles, and the nation\'s archival treasures for future generations.',
+    descriptionAr: 'حارس التراث الوثائقي لمصر، يحافظ على المخطوطات النادرة والصور التاريخية والكنوز الأرشيفية للأمة لصالح الأجيال القادمة.',
     accentColor: '#B8860B',
-    logoUrl: '/publishers/national-library.svg',
+    logoUrl: '/publishers/national-library.png',
     bookCount: 634,
   },
   {
     id: 'al-ahram',
     name: 'Al-Ahram',
+    nameAr: 'دار الأهرام',
     slug: 'al-ahram',
     tagline: 'At the Peak of Thought',
+    taglineAr: 'في قمة الفكر',
     description: 'Egypt\'s most prominent publishing institution, shaping public discourse through authoritative political analysis, scientific commentary, and cultural thought leadership.',
+    descriptionAr: 'أبرز مؤسسة نشر في مصر، تُشكّل الخطاب العام من خلال التحليل السياسي الموثوق والتعليق العلمي وقيادة الفكر الثقافي.',
     accentColor: '#C41E3A',
-    logoUrl: '/publishers/al-ahram.svg',
+    logoUrl: '/publishers/al-ahram.png',
     bookCount: 1056,
   },
 ]
+
 
 export const BOOKS: Book[] = [
   // General Egyptian Book Organization
@@ -167,41 +186,82 @@ export const BOOKS: Book[] = [
 export const EVENTS: FairEvent[] = [
   // Tuesday, April 21
   {
-    id: 'e1', title: 'From Nanochemistry to Literature', description: 'A cross-disciplinary dialogue exploring how Dr. Zewail\'s femtochemistry inspires literary narratives of time and transformation.',
-    speaker: 'Dr. Hossam El-Din Mostafa', date: '2025-04-21T10:00:00', duration: '1.5 hours', type: 'panel', publisherName: 'General Egyptian Book Organization',
+    id: 'e1',
+    title: 'From Nanochemistry to Literature',
+    titleAr: 'من الكيمياء النانوية إلى الأدب',
+    description: "A cross-disciplinary dialogue exploring how Dr. Zewail's femtochemistry inspires literary narratives of time and transformation.",
+    descriptionAr: 'حوار متعدد التخصصات يستكشف كيف تلهم فيمتوكيمياء د. زويل روايات أدبية عن الزمن والتحول.',
+    speaker: 'Dr. Hossam El-Din Mostafa', date: '2025-04-21T10:00:00',
+    duration: '1.5 hours', durationAr: 'ساعة ونصف', type: 'panel', publisherName: 'General Egyptian Book Organization',
   },
   {
-    id: 'e2', title: 'Preserving Heritage in the Digital Age', description: 'How modern digitization techniques are saving Egypt\'s manuscript heritage for future generations.',
-    speaker: 'Prof. Aisha Farouk', date: '2025-04-21T14:00:00', duration: '1 hour', type: 'talk', publisherName: 'National Library and Archives',
+    id: 'e2',
+    title: 'Preserving Heritage in the Digital Age',
+    titleAr: 'الحفاظ على التراث في العصر الرقمي',
+    description: "How modern digitization techniques are saving Egypt's manuscript heritage for future generations.",
+    descriptionAr: 'كيف تُنقذ تقنيات الرقمنة الحديثة تراث المخطوطات المصرية للأجيال القادمة.',
+    speaker: 'Prof. Aisha Farouk', date: '2025-04-21T14:00:00',
+    duration: '1 hour', durationAr: 'ساعة واحدة', type: 'talk', publisherName: 'National Library and Archives',
   },
   // Wednesday, April 22
   {
-    id: 'e3', title: 'The Art of Translation: Arabic to the World', description: 'Master translators discuss the challenges and triumphs of bringing Arabic literature to global audiences.',
-    speaker: 'Dr. Marilyn Booth & Dr. Nasser Abbas', date: '2025-04-22T10:00:00', duration: '2 hours', type: 'workshop', publisherName: 'Dar Al-Maaref',
+    id: 'e3',
+    title: 'The Art of Translation: Arabic to the World',
+    titleAr: 'فن الترجمة: من العربية إلى العالم',
+    description: 'Master translators discuss the challenges and triumphs of bringing Arabic literature to global audiences.',
+    descriptionAr: 'يناقش كبار المترجمين تحديات وإنجازات إيصال الأدب العربي إلى الجمهور العالمي.',
+    speaker: 'Dr. Marilyn Booth & Dr. Nasser Abbas', date: '2025-04-22T10:00:00',
+    duration: '2 hours', durationAr: 'ساعتان', type: 'workshop', publisherName: 'Dar Al-Maaref',
   },
   {
-    id: 'e4', title: 'Political Discourse and Media Responsibility', description: 'Leading journalists examine the evolving role of media in shaping political understanding.',
-    speaker: 'Al-Ahram Editorial Board', date: '2025-04-22T14:00:00', duration: '1.5 hours', type: 'panel', publisherName: 'Al-Ahram',
+    id: 'e4',
+    title: 'Political Discourse and Media Responsibility',
+    titleAr: 'الخطاب السياسي ومسؤولية الإعلام',
+    description: 'Leading journalists examine the evolving role of media in shaping political understanding.',
+    descriptionAr: 'يفحص كبار الصحفيين الدور المتطور للإعلام في تشكيل الفهم السياسي.',
+    speaker: 'Al-Ahram Editorial Board', date: '2025-04-22T14:00:00',
+    duration: '1.5 hours', durationAr: 'ساعة ونصف', type: 'panel', publisherName: 'Al-Ahram',
   },
   // Thursday, April 23
   {
-    id: 'e5', title: 'Digital Publishing Workshop', description: 'Hands-on workshop covering modern digital publishing tools and techniques.',
-    speaker: 'Eng. Sarah Khalil', date: '2025-04-23T10:00:00', duration: '3 hours', type: 'workshop', publisherName: 'General Egyptian Book Organization',
+    id: 'e5',
+    title: 'Digital Publishing Workshop',
+    titleAr: 'ورشة النشر الرقمي',
+    description: 'Hands-on workshop covering modern digital publishing tools and techniques.',
+    descriptionAr: 'ورشة تطبيقية تغطي أدوات وتقنيات النشر الرقمي الحديثة.',
+    speaker: 'Eng. Sarah Khalil', date: '2025-04-23T10:00:00',
+    duration: '3 hours', durationAr: '٣ ساعات', type: 'workshop', publisherName: 'General Egyptian Book Organization',
   },
   {
-    id: 'e6', title: 'Scientific Writing for the Public', description: 'How to communicate complex scientific concepts to general audiences effectively.',
-    speaker: 'Dr. Tarek El-Baz', date: '2025-04-23T14:00:00', duration: '1 hour', type: 'talk', publisherName: 'Al-Ahram',
+    id: 'e6',
+    title: 'Scientific Writing for the Public',
+    titleAr: 'الكتابة العلمية للجمهور العام',
+    description: 'How to communicate complex scientific concepts to general audiences effectively.',
+    descriptionAr: 'كيفية توصيل المفاهيم العلمية المعقدة للجمهور العام بفاعلية.',
+    speaker: 'Dr. Tarek El-Baz', date: '2025-04-23T14:00:00',
+    duration: '1 hour', durationAr: 'ساعة واحدة', type: 'talk', publisherName: 'Al-Ahram',
   },
   // Friday, April 24
   {
-    id: 'e7', title: '130 Years of Dar Al-Maaref', description: 'A celebratory retrospective of Egypt\'s oldest publishing house and its impact on national culture.',
-    speaker: 'Dar Al-Maaref Leadership', date: '2025-04-24T10:00:00', duration: '2 hours', type: 'panel', publisherName: 'Dar Al-Maaref',
+    id: 'e7',
+    title: '130 Years of Dar Al-Maaref',
+    titleAr: '١٣٠ عاماً من دار المعارف',
+    description: "A celebratory retrospective of Egypt's oldest publishing house and its impact on national culture.",
+    descriptionAr: 'احتفالية استعادية لأعرق دار نشر مصرية وتأثيرها على الثقافة الوطنية.',
+    speaker: 'Dar Al-Maaref Leadership', date: '2025-04-24T10:00:00',
+    duration: '2 hours', durationAr: 'ساعتان', type: 'panel', publisherName: 'Dar Al-Maaref',
   },
   {
-    id: 'e8', title: 'Rare Manuscripts: A Digital Viewing', description: 'Exclusive digital viewing and discussion of recently digitized rare manuscripts from the National Archives.',
-    speaker: 'National Archives Curators', date: '2025-04-24T14:00:00', duration: '1.5 hours', type: 'talk', publisherName: 'National Library and Archives',
+    id: 'e8',
+    title: 'Rare Manuscripts: A Digital Viewing',
+    titleAr: 'المخطوطات النادرة: عرض رقمي حصري',
+    description: 'Exclusive digital viewing and discussion of recently digitized rare manuscripts from the National Archives.',
+    descriptionAr: 'عرض ونقاش رقمي حصري لمخطوطات نادرة رُقمنت مؤخراً من الأرشيف الوطني.',
+    speaker: 'National Archives Curators', date: '2025-04-24T14:00:00',
+    duration: '1.5 hours', durationAr: 'ساعة ونصف', type: 'talk', publisherName: 'National Library and Archives',
   },
 ]
+
 
 export const GENRES = [
   'All Genres', 'Anthology', 'History', 'Poetry', 'Art & Architecture', 

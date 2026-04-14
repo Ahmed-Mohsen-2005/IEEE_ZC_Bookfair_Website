@@ -113,10 +113,10 @@ export default function DigitalReadingPane() {
                       </p>
                       <p>
                         The content displayed here represents the {book.genre} genre, published by {book.publisherName} in {book.year}. 
-                        This work is available in {book.language} and has been read by {book.readCount.toLocaleString()} visitors to the Zewail Digital Book Pavilions.
+                        This work is available in {book.language} and has been read by {book.readCount.toLocaleString()} visitors to the Zewail Digital Knowledge Hubs.
                       </p>
                       <p>
-                        The Zewail Digital Book Pavilions, powered by IEEE Zewail City, brings together Egypt&apos;s most prestigious publishers 
+                        The Zewail Knowledge Hubs, powered by IEEE Zewail City, brings together Egypt&apos;s most prestigious publishers 
                         under one virtual roof. This platform honors the legacy of Dr. Ahmed Zewail, Nobel Laureate and pioneer of femtochemistry, 
                         whose dedication to the pursuit of knowledge continues to inspire generations of scholars and readers.
                       </p>

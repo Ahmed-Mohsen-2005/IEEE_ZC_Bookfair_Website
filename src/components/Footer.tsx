@@ -1,114 +1,123 @@
 'use client'
 
-import { useAppStore, type PageView } from '@/lib/store'
-import { Atom } from 'lucide-react'
+import { useAppStore } from '@/lib/store'
+import { Atom, ExternalLink, MapPin, Mail, Phone } from 'lucide-react'
 
 export default function Footer() {
-  const { navigateTo } = useAppStore()
+  const { navigateTo, setNavigationTarget, language } = useAppStore()
+  const isAr = language === 'ar'
 
-  const handleNavClick = (page: PageView) => {
-    navigateTo(page)
+  const t = {
+    title: isAr ? 'معرض مدينة زويل الرقمي للكتاب' : 'Zewail Digital Book Fair',
+    desc: isAr
+      ? 'مركز متميز مخصص لتطوير البحث العلمي، وتوفير وصول لا مثيل له إلى المنشورات الأكاديمية والموارد الفكرية.'
+      : 'A center of excellence dedicated to advancing scientific research, providing unparalleled access to academic publications.',
+    quickLinks: isAr ? 'روابط سريعة' : 'Quick Links',
+    contact: isAr ? 'تواصل معنا' : 'Contact',
+    hubs: isAr ? 'مراكز المعرفة' : 'Knowledge Hubs',
+    calendar: isAr ? 'التقويم' : 'Calendar',
+    officialSite: isAr ? 'الموقع الرسمي' : 'Official Website',
+    address: isAr ? 'مدينة زويل للعلوم والتكنولوجيا، الجيزة، مصر' : 'Zewail City of Science & Technology, Giza, Egypt',
+    rights: isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.',
+    poweredBy: isAr ? 'بدعم من IEEE ZC' : 'Powered by IEEE Zewail City',
+  }
+
+  const nav = (target: string) => {
+    setNavigationTarget(target)
+    navigateTo('home')
   }
 
   return (
-    <footer className="mt-auto w-full bg-zewail-navy text-white/90 pyramid-watermark">
-      {/* Subtle top border accent */}
-      <div className="h-1 w-full bg-gradient-to-r from-zewail-blue via-zewail-gold to-zewail-blue" />
+    <footer className="relative overflow-hidden border-t border-border bg-[#0B1D35] dark:bg-[#030b16]" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* Subtle dot pattern */}
+      <div className="absolute inset-0 opacity-[0.03]"
+        style={{ backgroundImage: "radial-gradient(circle, #00B4D1 1px, transparent 1px)", backgroundSize: "28px 28px" }}
+      />
+      {/* Top glow */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zewail-blue/50 to-transparent" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Left section - Brand & Tribute */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-white/10">
-                <Atom className="size-5 text-zewail-blue" />
+      <div className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-10">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
+
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white shadow-lg overflow-hidden border border-white/20">
+                <img
+                  src="/zewail-logo.png"
+                  alt="Zewail City Logo"
+                  className="w-14 h-14 object-contain p-0.5"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).nextElementSibling?.removeAttribute('style');
+                  }}
+                />
+                <span className="text-zewail-blue font-black text-2xl hidden">Z</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold leading-tight text-white sm:text-base">
-                  Zewail Digital Book Pavilions
-                </span>
-              </div>
+              <span className="text-lg font-bold text-white leading-tight">{t.title}</span>
             </div>
-            <p className="text-sm italic text-white/50">
-              In honor of Dr. Ahmed Zewail (1946-2016)
+            <p className="text-sm text-white/55 max-w-sm leading-relaxed mb-4">
+              {t.desc}
             </p>
-            <p className="text-xs text-white/40 leading-relaxed">
-              Nobel Laureate in Chemistry &bull; Father of Femtochemistry &bull; Champion of Science in Egypt
-            </p>
+            <span className="text-xs text-zewail-blue/70 font-medium">{t.poweredBy}</span>
           </div>
 
-          {/* Center section - Quick Links */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zewail-blue">
-              Quick Links
-            </h3>
-            <nav className="flex flex-col gap-2">
-              <button
-                onClick={() => handleNavClick('home')}
-                className="w-fit text-sm text-white/70 transition-colors hover:text-zewail-blue"
-              >
-                Home
-              </button>
-              <button
-                onClick={() => handleNavClick('pavilion-general-egyptian')}
-                className="w-fit text-sm text-white/70 transition-colors hover:text-zewail-blue"
-              >
-                Pavilions
-              </button>
-              <button
-                onClick={() => handleNavClick('home')}
-                className="w-fit text-sm text-white/70 transition-colors hover:text-zewail-blue"
-              >
-                Calendar
-              </button>
-              <button
-                onClick={() => handleNavClick('visitor-dashboard')}
-                className="w-fit text-sm text-white/70 transition-colors hover:text-zewail-blue"
-              >
-                My Dashboard
-              </button>
-            </nav>
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-5 flex items-center gap-2">
+              <span className="h-px w-4 bg-zewail-blue inline-block" />
+              {t.quickLinks}
+            </h4>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <button onClick={() => nav('hubs-section')} className="text-white/55 hover:text-zewail-blue transition-colors cursor-pointer">
+                  {t.hubs}
+                </button>
+              </li>
+              <li>
+                <button onClick={() => nav('calendar-section')} className="text-white/55 hover:text-zewail-blue transition-colors cursor-pointer">
+                  {t.calendar}
+                </button>
+              </li>
+              <li>
+                <a href="https://www.zewailcity.edu.eg/" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-white/55 hover:text-zewail-blue transition-colors">
+                  {t.officialSite} <ExternalLink className="size-3" />
+                </a>
+              </li>
+            </ul>
           </div>
 
-          {/* Right section - IEEE */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zewail-blue">
-              Organized By
-            </h3>
-            <div className="flex items-center gap-3">
-              {/* IEEE Logo Placeholder */}
-              <div className="flex size-12 items-center justify-center rounded-lg border border-white/10 bg-white/5">
-                <span className="text-lg font-bold text-zewail-blue">IEEE</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-white/90">IEEE Zewail City</span>
-                <span className="text-xs text-white/50">Student Branch</span>
-              </div>
-            </div>
-            <p className="text-xs text-white/40 leading-relaxed">
-              Empowering knowledge and technology at Zewail City of Science and Technology.
-            </p>
+          {/* Contact */}
+          <div>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-5 flex items-center gap-2">
+              <span className="h-px w-4 bg-zewail-blue inline-block" />
+              {t.contact}
+            </h4>
+            <ul className="space-y-4 text-sm text-white/55">
+              <li className="flex items-start gap-2.5">
+                <MapPin className="size-4 text-zewail-blue shrink-0 mt-0.5" />
+                <span>{t.address}</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Mail className="size-4 text-zewail-blue shrink-0" />
+                <span>info@zewailcity.edu.eg</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <Phone className="size-4 text-zewail-blue shrink-0" />
+                <span dir="ltr">+20 2 3854 0400</span>
+              </li>
+            </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-8 border-t border-white/10 pt-6">
-          <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-            <p className="text-xs text-white/40">
-              &copy; {new Date().getFullYear()} Zewail Digital Book Pavilions. All rights reserved.
-            </p>
-            <div className="flex items-center gap-1 text-xs text-white/30">
-              <svg width="10" height="10" viewBox="0 0 10 10" className="text-zewail-gold/40">
-                <polygon points="5,1 9,9 1,9" fill="currentColor" />
-              </svg>
-              <span>Pyramid of Knowledge</span>
-              <svg width="10" height="10" viewBox="0 0 10 10" className="text-zewail-gold/40">
-                <polygon points="5,1 9,9 1,9" fill="currentColor" />
-              </svg>
-            </div>
-          </div>
+        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/30">
+          <p dir="ltr">© {new Date().getFullYear()} {t.title}. {t.rights}</p>
+          <p className="text-zewail-blue/40">zewailcity.edu.eg</p>
         </div>
       </div>
     </footer>
   )
 }
+

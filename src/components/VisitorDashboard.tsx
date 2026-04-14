@@ -4,209 +4,166 @@ import { useState, useMemo } from 'react'
 import { useAppStore } from '@/lib/store'
 import { BOOKS, GENRES, LANGUAGES, PUBLISHERS, searchBooks, getBookCoverGradient } from '@/lib/data'
 import { motion } from 'framer-motion'
-import { Search, Filter, BookOpen, BookmarkPlus, Star, ArrowLeft, X } from 'lucide-react'
+import { Search, Filter, BookOpen, BookmarkPlus, Star, ArrowLeft, X, Home } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import BookCard from '@/components/BookCard'
 
 export default function VisitorDashboard() {
-  const { user, navigateTo, searchQuery, setSearchQuery, searchFilters, setSearchFilters } = useAppStore()
+  const { user, navigateTo, searchQuery, setSearchQuery, searchFilters, setSearchFilters, language } = useAppStore()
   const [showFilters, setShowFilters] = useState(false)
+  const isAr = language === 'ar'
 
-  // Demo user book lists
+  const t = {
+    back: isAr ? 'الرئيسية' : 'Back to Home',
+    welcome: isAr ? `مرحباً بعودتك، ${user?.name || 'القارئ'}` : `Welcome back, ${user?.name || 'Reader'}`,
+    subtitle: isAr ? 'مساحتك الشخصية للاكتشاف والقراءة' : 'Your personal discovery space',
+    myShelf: isAr ? 'رفّ كتبي الافتراضي' : 'My Virtual Shelf',
+    read: isAr ? 'كتب قرأتها' : "Books I've Read",
+    wantToRead: isAr ? 'أريد القراءة' : 'Want to Read',
+    search: isAr ? 'البحث الرقمي الشامل' : 'Global Digital Search',
+    searchPlaceholder: isAr
+      ? 'ابحث عبر كل الناشرين — عناوين، مؤلفون، أوصاف...'
+      : 'Search across all publishers — titles, authors, descriptions...',
+    results: (n: number) => isAr ? `تم العثور على ${n} نتيجة` : `${n} result${n !== 1 ? 's' : ''} found`,
+    noResults: isAr ? 'لا توجد كتب تطابق معايير البحث' : 'No books found matching your criteria',
+    recommended: isAr ? 'موصى به لك' : 'Recommended for You',
+    recDesc: isAr
+      ? `بناءً على سجل قراءتك — قرأت ${BOOKS[0]?.genre} من ${BOOKS[0]?.publisherName}، ربما يعجبك هذا:`
+      : `Based on your reading history — you read ${BOOKS[0]?.genre} from ${BOOKS[0]?.publisherName}, you might like these:`,
+    genre: isAr ? 'النوع' : 'Genre',
+    lang: isAr ? 'اللغة' : 'Language',
+    year: isAr ? 'السنة' : 'Year',
+    publisher: isAr ? 'الناشر' : 'Publisher',
+    allGenres: isAr ? 'كل الأنواع' : 'All Genres',
+    allLangs: isAr ? 'كل اللغات' : 'All Languages',
+    allYears: isAr ? 'كل السنوات' : 'All Years',
+    allPublishers: isAr ? 'كل الناشرين' : 'All Publishers',
+  }
+
   const readList = BOOKS.slice(0, 3)
   const wantToReadList = BOOKS.slice(4, 8)
-
-  // Search results
-  const results = useMemo(() => {
-    return searchBooks(searchQuery, {
-      genre: searchFilters.genre,
-      language: searchFilters.language,
-      year: searchFilters.year,
-      publisher: searchFilters.publisher,
-    })
-  }, [searchQuery, searchFilters])
-
-  // Recommendations based on read books
+  const results = useMemo(() => searchBooks(searchQuery, {
+    genre: searchFilters.genre, language: searchFilters.language,
+    year: searchFilters.year, publisher: searchFilters.publisher,
+  }), [searchQuery, searchFilters])
   const recommendations = useMemo(() => {
     const readGenres = readList.map(b => b.genre)
-    return BOOKS.filter(b => 
-      !readList.some(rb => rb.id === b.id) && 
-      readGenres.includes(b.genre) &&
-      b.publisherId !== readList[0]?.publisherId
-    ).slice(0, 4)
+    return BOOKS.filter(b => !readList.some(rb => rb.id === b.id) && readGenres.includes(b.genre)).slice(0, 4)
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50/30 to-white">
+    <div className="min-h-screen bg-background" dir={isAr ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-6 py-8">
+
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-8">
           <div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateTo('home')}
-              className="text-zewail-navy/50 hover:text-zewail-navy mb-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back to Home
+            <Button variant="ghost" size="sm" onClick={() => navigateTo('home')}
+              className="text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1">
+              {isAr ? <ArrowLeft className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
+              {t.back}
             </Button>
-            <h1 className="text-3xl font-bold text-zewail-navy">
-              Welcome back, {user?.name || 'Reader'}
-            </h1>
-            <p className="text-zewail-navy/50 mt-1">Your personal discovery space</p>
+            <h1 className="text-3xl font-bold text-foreground">{t.welcome}</h1>
+            <p className="text-muted-foreground mt-1">{t.subtitle}</p>
           </div>
         </motion.div>
 
         {/* My Virtual Shelf */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-12"
-        >
-          <h2 className="text-xl font-semibold text-zewail-navy mb-4 flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-zewail-blue" /> My Virtual Shelf
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-12">
+          <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-zewail-blue" /> {t.myShelf}
           </h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Read List */}
-            <div className="bg-white rounded-2xl border border-zewail-blue/10 p-6">
-              <h3 className="text-sm font-medium text-zewail-navy/60 mb-4 flex items-center gap-2">
-                <Star className="h-4 w-4 text-amber-500" /> Books I&apos;ve Read
-              </h3>
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {readList.map(book => (
-                  <BookCard key={book.id} book={book} compact />
-                ))}
+            {[
+              { label: t.read,       icon: <Star className="h-4 w-4 text-amber-500" />,        books: readList },
+              { label: t.wantToRead, icon: <BookmarkPlus className="h-4 w-4 text-zewail-blue" />, books: wantToReadList },
+            ].map(shelf => (
+              <div key={shelf.label} className="bg-card rounded-2xl border border-border p-6 hover:shadow-md transition-shadow">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
+                  {shelf.icon} {shelf.label}
+                </h3>
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {shelf.books.map(book => <BookCard key={book.id} book={book} compact />)}
+                </div>
               </div>
-            </div>
-
-            {/* Want to Read */}
-            <div className="bg-white rounded-2xl border border-zewail-blue/10 p-6">
-              <h3 className="text-sm font-medium text-zewail-navy/60 mb-4 flex items-center gap-2">
-                <BookmarkPlus className="h-4 w-4 text-zewail-blue" /> Want to Read
-              </h3>
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {wantToReadList.map(book => (
-                  <BookCard key={book.id} book={book} compact />
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </motion.section>
 
         {/* Global Digital Search */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-12"
-        >
-          <h2 className="text-xl font-semibold text-zewail-navy mb-4 flex items-center gap-2">
-            <Search className="h-5 w-5 text-zewail-blue" /> Global Digital Search
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-12">
+          <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Search className="h-5 w-5 text-zewail-blue" /> {t.search}
           </h2>
 
-          {/* Search Bar */}
+          {/* Search input */}
           <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zewail-navy/30" />
+            <Search className="absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground start-4" />
             <Input
-              placeholder="Search across all publishers — titles, authors, descriptions..."
-              className="pl-12 pr-12 py-6 text-base rounded-2xl border-zewail-blue/20 focus:border-zewail-blue/40 bg-white shadow-sm"
+              placeholder={t.searchPlaceholder}
+              className="px-12 py-6 text-base rounded-2xl border-border bg-card text-foreground placeholder:text-muted-foreground focus-visible:border-zewail-blue"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="h-4 w-4 text-zewail-navy/50" />
-            </Button>
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-10 top-1/2 -translate-y-1/2"
-                onClick={() => setSearchQuery('')}
-              >
-                <X className="h-4 w-4 text-zewail-navy/50" />
+            <div className="absolute top-1/2 -translate-y-1/2 flex gap-1 end-2">
+              {searchQuery && (
+                <Button variant="ghost" size="sm" onClick={() => setSearchQuery('')}>
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={() => setShowFilters(!showFilters)}>
+                <Filter className="h-4 w-4 text-muted-foreground" />
               </Button>
-            )}
+            </div>
           </div>
 
-          {/* Advanced Filters */}
+          {/* Filters */}
           {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 p-4 bg-white rounded-xl border border-zewail-blue/10"
-            >
-              <Select value={searchFilters.genre || 'All Genres'} onValueChange={(v) => setSearchFilters({ genre: v })}>
-                <SelectTrigger className="rounded-lg">
-                  <SelectValue placeholder="Genre" />
-                </SelectTrigger>
-                <SelectContent>
-                  {GENRES.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 p-4 bg-card rounded-xl border border-border">
+              <Select value={searchFilters.genre || 'all'} onValueChange={v => setSearchFilters({ genre: v === 'all' ? '' : v })}>
+                <SelectTrigger className="rounded-lg bg-background border-border text-foreground"><SelectValue placeholder={t.genre} /></SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="all">{t.allGenres}</SelectItem>
+                  {GENRES.slice(1).map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
                 </SelectContent>
               </Select>
-
-              <Select value={searchFilters.language || 'All Languages'} onValueChange={(v) => setSearchFilters({ language: v })}>
-                <SelectTrigger className="rounded-lg">
-                  <SelectValue placeholder="Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+              <Select value={searchFilters.language || 'all'} onValueChange={v => setSearchFilters({ language: v === 'all' ? '' : v })}>
+                <SelectTrigger className="rounded-lg bg-background border-border text-foreground"><SelectValue placeholder={t.lang} /></SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="all">{t.allLangs}</SelectItem>
+                  {LANGUAGES.slice(1).map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
-
-              <Select value={searchFilters.year || 'all'} onValueChange={(v) => setSearchFilters({ year: v === 'all' ? '' : v })}>
-                <SelectTrigger className="rounded-lg">
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Years</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2022">2022</SelectItem>
-                  <SelectItem value="2021">2021</SelectItem>
-                  <SelectItem value="2020">2020</SelectItem>
+              <Select value={searchFilters.year || 'all'} onValueChange={v => setSearchFilters({ year: v === 'all' ? '' : v })}>
+                <SelectTrigger className="rounded-lg bg-background border-border text-foreground"><SelectValue placeholder={t.year} /></SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="all">{t.allYears}</SelectItem>
+                  {['2024','2023','2022','2021','2020'].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
                 </SelectContent>
               </Select>
-
-              <Select value={searchFilters.publisher || 'all'} onValueChange={(v) => setSearchFilters({ publisher: v === 'all' ? '' : v })}>
-                <SelectTrigger className="rounded-lg">
-                  <SelectValue placeholder="Publisher" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Publishers</SelectItem>
-                  {PUBLISHERS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+              <Select value={searchFilters.publisher || 'all'} onValueChange={v => setSearchFilters({ publisher: v === 'all' ? '' : v })}>
+                <SelectTrigger className="rounded-lg bg-background border-border text-foreground"><SelectValue placeholder={t.publisher} /></SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="all">{t.allPublishers}</SelectItem>
+                  {PUBLISHERS.map(p => <SelectItem key={p.id} value={p.id}>{isAr ? p.nameAr : p.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </motion.div>
           )}
 
-          {/* Search Results */}
           {searchQuery && (
             <div>
-              <p className="text-sm text-zewail-navy/50 mb-4">
-                {results.length} result{results.length !== 1 ? 's' : ''} found
-              </p>
+              <p className="text-sm text-muted-foreground mb-4">{t.results(results.length)}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {results.map(book => (
-                  <BookCard key={book.id} book={book} />
-                ))}
+                {results.map(book => <BookCard key={book.id} book={book} />)}
               </div>
               {results.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-zewail-navy/30 text-lg">No books found matching your criteria</p>
+                  <p className="text-muted-foreground text-lg">{t.noResults}</p>
                 </div>
               )}
             </div>
@@ -215,21 +172,13 @@ export default function VisitorDashboard() {
 
         {/* Recommendations */}
         {!searchQuery && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h2 className="text-xl font-semibold text-zewail-navy mb-2 flex items-center gap-2">
-              <Star className="h-5 w-5 text-amber-500" /> Recommended for You
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <h2 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+              <Star className="h-5 w-5 text-amber-500" /> {t.recommended}
             </h2>
-            <p className="text-sm text-zewail-navy/40 mb-6">
-              Based on your reading history — you read {readList[0]?.genre} from {readList[0]?.publisherName}, you might like these:
-            </p>
+            <p className="text-sm text-muted-foreground mb-6">{t.recDesc}</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {recommendations.map(book => (
-                <BookCard key={book.id} book={book} />
-              ))}
+              {recommendations.map(book => <BookCard key={book.id} book={book} />)}
             </div>
           </motion.section>
         )}
